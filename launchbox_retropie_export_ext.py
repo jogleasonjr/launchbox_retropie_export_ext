@@ -7,12 +7,12 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 # Change the path to your launchbox folder.
-lb_dir = r'X:\A3_Games\00_Resources\00_Launchbox\LaunchBox'
+lb_dir = r'H:\LaunchBox\\'
 
 # Script output directory. (for Roms, images and xml files)
 # Copy the gamelists to ~/.emulationstation/gamelists/
 # Copy the roms and images to ~/RetroPie/roms/
-output_dir = r'X:\output'
+output_dir = r'H:\RecalBox\\'
 
 # Restrict export to only Launchbox favorites.
 favorites_only=False
@@ -26,16 +26,16 @@ game_hide=True
 # Arcade is disabled in this example.
 platforms = dict()
 #platforms["Arcade"] = "arcade"
-platforms["Nintendo 64"] = "n64"
+#platforms["Nintendo 64"] = "n64"
 platforms["Nintendo Entertainment System"] = "nes"
 platforms["Nintendo Game Boy Advance"] = "gba"
 platforms["Nintendo Game Boy Color"] = "gbc"
 platforms["Nintendo Game Boy"] = "gb"
-platforms["Sega 32X"] = "sega32x"
-platforms["Sega Game Gear"] = "gamegear"
-platforms["Sega Genesis"] = "genesis"
-platforms["Sega Master System"] = "mastersystem"
-platforms["Sony Playstation"] = "psx"
+# platforms["Sega 32X"] = "sega32x"
+# platforms["Sega Game Gear"] = "gamegear"
+# platforms["Sega Genesis"] = "genesis"
+# platforms["Sega Master System"] = "mastersystem"
+# platforms["Sony Playstation"] = "psx"
 platforms["Super Nintendo Entertainment System"] = "snes"
 
 # Comment/uncomment to change content rating for kids.
@@ -45,33 +45,33 @@ kidrating["E - Everyone"] = "true"
 kidrating["EC - Early Childhood"] = "true"
 kidrating["E10+ - Everyone 10+"] = "true"
 kidrating["T - Teen"] = "true"
-#kidrating["M - Mature"] = "true"
-#kidrating["Not Rated"] = "true"
-#kidrating["RP - Rating Pending"] = "true"
+kidrating["M - Mature"] = "true"
+kidrating["Not Rated"] = "true"
+kidrating["RP - Rating Pending"] = "true"
 
 # Comment/uncomment to hide specific regions.
 # Australia, Europe, Japan, Europe, Germany, etc. enabled in this example.
 hideregion = dict()
-hideregion["Asia"] = "true"
-#hideregion["Australia"] = "true"
-hideregion["Brazil"] = "true"
-hideregion["China"] = "true"
-#hideregion["Europe, Japan"] = "true"
-#hideregion["Europe"] = "true"
-hideregion["France"] = "true"
-#hideregion["Germany"] = "true"
-hideregion["Hong Kong"] = "true"
-hideregion["Italy"] = "true"
-hideregion["Japan"] = "true"
-hideregion["Korea"] = "true"
-#hideregion["North America, Europe"] = "true"
-#hideregion["North America, Japan"] = "true"
-#hideregion["North America"] = "true"
-hideregion["Russia"] = "true"
-hideregion["Spain"] = "true"
-hideregion["The Netherlands"] = "true"
-#hideregion["United Kingdom"] = "true"
-#hideregion["World"] = "true"
+# hideregion["Asia"] = "true"
+# #hideregion["Australia"] = "true"
+# hideregion["Brazil"] = "true"
+# hideregion["China"] = "true"
+# #hideregion["Europe, Japan"] = "true"
+# #hideregion["Europe"] = "true"
+# hideregion["France"] = "true"
+# #hideregion["Germany"] = "true"
+# hideregion["Hong Kong"] = "true"
+# hideregion["Italy"] = "true"
+# hideregion["Japan"] = "true"
+# hideregion["Korea"] = "true"
+# #hideregion["North America, Europe"] = "true"
+# #hideregion["North America, Japan"] = "true"
+# #hideregion["North America"] = "true"
+# hideregion["Russia"] = "true"
+# hideregion["Spain"] = "true"
+# hideregion["The Netherlands"] = "true"
+# #hideregion["United Kingdom"] = "true"
+# #hideregion["World"] = "true"
 
 ###edits should not be required below here###
 playercount = dict()
@@ -162,14 +162,13 @@ for platform in platforms.keys():
             print(e)  
             
     for game in xmltree.getroot():
-        try:
             this_game = dict()
 			
-            if (favorites_only == False) or (favorites_only == True and game.find("Favorite").text == 'true'):
+            if (game.tag == 'Game') and ((favorites_only == False) or (favorites_only == True and game.find("Favorite").text == 'true')):
 			
                 print("%s: %s" % (platform_lb, game.find("Title").text))
 				
-                rom_path = game.find("ApplicationPath").text        
+                rom_path = lb_dir + game.find("ApplicationPath").text        
                 this_game["path"]="./" + os.path.basename(r'%s' % game.find("ApplicationPath").text)
 				
                 this_game["name"]=game.find("Title").text
@@ -227,9 +226,6 @@ for platform in platforms.keys():
                 save_image(image_path, output_image_dir)
 
                 copy(rom_path, output_roms_platform)
-
-        except Exception as e:
-            print(e)
             
     top = ET.Element('gameList')
     for game in games_found:
@@ -238,9 +234,11 @@ for platform in platforms.keys():
             child_content = ET.SubElement(child, key)    
             child_content.text = game[key]
 
-    try:
-        xmlstr = minidom.parseString(ET.tostring(top)).toprettyxml(indent="    ")
-        with io.open(output_xml, "w", encoding="utf-8") as f:
-            f.write(xmlstr)
-    except Exception as e:
-            print(e)
+
+    xmlstr = minidom.parseString(ET.tostring(top)).toprettyxml(indent="    ")
+    with io.open(output_xml, "w", encoding="utf-8") as f:
+        f.write(xmlstr)
+
+    copy(output_xml, output_roms_platform)
+
+
